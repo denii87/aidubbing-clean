@@ -21,24 +21,23 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Initialize Project and Configure Gradle
+      - name: Initialize Project Structure
         run: |
           mkdir temp_lib
           cp -r lib/* temp_lib/
-          flutter create --org com.aidubbing.pro .
-          rm -rf lib/*
-          cp -r temp_lib/* lib/
-          rm -rf temp_lib
+          flutter create --org com.aidubbing.pro app_project
+          cp -r temp_lib/* app_project/lib/
+          cd app_project
           rm -rf test
           flutter pub add file_picker
-          sed -i 's/minSdkVersion = flutter.minSdkVersion/minSdkVersion = 21/g' android/app/build.gradle
-          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle || true
 
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          cd app_project
+          flutter build apk --release
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: app_project/build/app/outputs/flutter-apk/app-release.apk
